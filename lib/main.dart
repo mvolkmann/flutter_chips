@@ -13,11 +13,13 @@ void main() => runApp(
 
 class ChipOption {
   Color color;
+  bool deleted;
   bool selected;
   String text;
 
   ChipOption({
     this.color = Colors.black,
+    this.deleted = false,
     this.selected = false,
     required this.text,
   });
@@ -31,25 +33,15 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late List<ChipOption> chipOptions;
+  final List<ChipOption> chipOptions = [
+    ChipOption(text: 'Red', color: Colors.red),
+    ChipOption(text: 'Orange', color: Colors.orange),
+    ChipOption(text: 'Green', color: Colors.green),
+    ChipOption(text: 'Blue', color: Colors.blue),
+    ChipOption(text: 'Purple', color: Colors.purple),
+  ];
   late List<FilterChip> filterChips;
-  final inputChips = <InputChip>[];
-
-  @override
-  void initState() {
-    super.initState();
-    makeInputChip('Red', Colors.red);
-    makeInputChip('Green', Colors.green);
-    makeInputChip('Blue', Colors.blue);
-
-    chipOptions = [
-      ChipOption(text: 'Red', color: Colors.red),
-      ChipOption(text: 'Orange', color: Colors.orange),
-      ChipOption(text: 'Green', color: Colors.green),
-      ChipOption(text: 'Blue', color: Colors.blue),
-      ChipOption(text: 'Purple', color: Colors.purple),
-    ];
-  }
+  late List<InputChip> inputChips;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +65,24 @@ class _HomeState extends State<Home> {
         )
         .toList();
 
+    inputChips = chipOptions
+        .where((option) => !option.deleted)
+        .map(
+          (option) => InputChip(
+            backgroundColor: Colors.grey[300],
+            elevation: 5,
+            label: Text(option.text),
+            labelStyle: TextStyle(
+              color: option.color,
+              fontWeight: FontWeight.bold,
+            ),
+            onDeleted: () {
+              setState(() => option.deleted = true);
+            },
+          ),
+        )
+        .toList();
+
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: Center(
@@ -80,15 +90,15 @@ class _HomeState extends State<Home> {
           children: [
             Wrap(
               children: <Widget>[
-                makeChip('Chocolate', Colors.brown),
-                makeActionChip(
+                buildChip('Chocolate', Colors.brown),
+                buildActionChip(
                   'Vanilla',
                   Colors.deepOrange,
                   () => print('got press'),
                 ),
-                makeChip('Strawberry', Colors.pink),
-                makeChip('Blueberry', Colors.blue),
-                makeChip('Kiwi', Colors.green),
+                buildChip('Strawberry', Colors.pink),
+                buildChip('Blueberry', Colors.blue),
+                buildChip('Kiwi', Colors.green),
               ],
               spacing: spacing,
             ),
@@ -101,7 +111,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget makeActionChip(String text, Color bgColor, VoidCallback onPressed) =>
+  Widget buildActionChip(String text, Color bgColor, VoidCallback onPressed) =>
       ActionChip(
         avatar: Icon(Icons.ac_unit, color: Colors.white),
         backgroundColor: bgColor,
@@ -111,26 +121,10 @@ class _HomeState extends State<Home> {
         onPressed: onPressed,
       );
 
-  Widget makeChip(String text, Color bgColor) => Chip(
+  Widget buildChip(String text, Color bgColor) => Chip(
         backgroundColor: bgColor,
         elevation: 5,
         label: Text(text),
         labelStyle: TextStyle(color: Colors.white),
       );
-
-  Widget makeInputChip(String text, Color color) {
-    late InputChip thisChip; // used by onDeleted
-    final chip = InputChip(
-      backgroundColor: Colors.grey[300],
-      elevation: 5,
-      label: Text(text),
-      labelStyle: TextStyle(color: color, fontWeight: FontWeight.bold),
-      onDeleted: () {
-        setState(() => inputChips.remove(thisChip));
-      },
-    );
-    thisChip = chip; // set for use in onDeleted
-    inputChips.add(chip);
-    return chip;
-  }
 }
