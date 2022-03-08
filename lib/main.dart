@@ -48,12 +48,14 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    const elevation = 5.0;
+
     actionChips = actionOptions
         .where((option) => !option.deleted)
         .map(
           (option) => ActionChip(
-            backgroundColor: Colors.grey[300],
-            elevation: 5,
+            backgroundColor: option.color.withOpacity(0.2),
+            elevation: elevation,
             label: Text(option.text),
             labelStyle: TextStyle(
               color: option.color,
@@ -68,8 +70,8 @@ class _HomeState extends State<Home> {
         .where((option) => !option.deleted)
         .map(
           (option) => Chip(
-            backgroundColor: Colors.grey[300],
-            elevation: 5,
+            backgroundColor: option.color.withOpacity(0.2),
+            elevation: elevation,
             label: Text(option.text),
             labelStyle: TextStyle(
               color: option.color,
@@ -86,7 +88,7 @@ class _HomeState extends State<Home> {
         .map(
           (option) => ChoiceChip(
             backgroundColor: option.color.withOpacity(0.2),
-            elevation: 5,
+            elevation: elevation,
             label: Text(option.text),
             labelStyle: TextStyle(
               color: option.selected ? Colors.grey[700] : option.color,
@@ -96,6 +98,7 @@ class _HomeState extends State<Home> {
             selectedColor: option.color.withOpacity(0.6),
             onSelected: (bool selected) {
               setState(() {
+                // Note how it's on YOU to ensure that only one is selected!
                 for (var opt in choiceOptions) {
                   opt.selected = false;
                 }
@@ -111,7 +114,7 @@ class _HomeState extends State<Home> {
           (option) => FilterChip(
             backgroundColor: option.color.withOpacity(0.2),
             checkmarkColor: option.color,
-            elevation: 5,
+            elevation: elevation,
             label: Text(option.text),
             labelStyle: TextStyle(
               color: option.selected ? Colors.grey[700] : option.color,
@@ -130,8 +133,8 @@ class _HomeState extends State<Home> {
         .where((option) => !option.deleted)
         .map(
           (option) => InputChip(
-            backgroundColor: Colors.grey[300],
-            elevation: 5,
+            backgroundColor: option.color.withOpacity(0.2),
+            elevation: elevation,
             label: Text(option.text),
             labelStyle: TextStyle(
               color: option.color,
@@ -140,6 +143,7 @@ class _HomeState extends State<Home> {
             onDeleted: () {
               setState(() => option.deleted = true);
             },
+            // Can't specify both onPressed and onSelected.
             //onPressed: () => print('You pressed ${option.text}'),
             selected: option.selected,
             selectedColor: option.color.withOpacity(0.6),
@@ -171,20 +175,16 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget buildLabel(String text) {
-    return Text(
-      text,
-      style: TextStyle(fontWeight: FontWeight.bold),
-    ).margin(EdgeInsets.only(top: 20));
-  }
+  Widget buildLabel(String text) => Text(
+        text,
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ).margin(EdgeInsets.only(top: 20));
 
-  static List<ChipOption> buildOptions() {
-    return [
-      ChipOption(text: 'Red', color: Colors.red),
-      ChipOption(text: 'Orange', color: Colors.orange),
-      ChipOption(text: 'Green', color: Colors.green),
-      ChipOption(text: 'Blue', color: Colors.blue),
-      ChipOption(text: 'Purple', color: Colors.purple),
-    ];
-  }
+  static List<ChipOption> buildOptions() => [
+        ChipOption(text: 'Red', color: Colors.red),
+        ChipOption(text: 'Orange', color: Colors.orange),
+        ChipOption(text: 'Green', color: Colors.green),
+        ChipOption(text: 'Blue', color: Colors.blue),
+        ChipOption(text: 'Purple', color: Colors.purple),
+      ];
 }
