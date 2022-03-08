@@ -98,7 +98,7 @@ class _HomeState extends State<Home> {
             selectedColor: option.color.withOpacity(0.6),
             onSelected: (bool selected) {
               setState(() {
-                // Note how it's on YOU to ensure that only one is selected!
+                // It's on YOU to ensure that only one is selected!
                 for (var opt in choiceOptions) {
                   opt.selected = false;
                 }
