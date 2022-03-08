@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import './extensions/widget_extensions.dart';
 
 const spacing = 10.0;
 const title = 'My App';
@@ -33,19 +34,79 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final List<ChipOption> chipOptions = [
-    ChipOption(text: 'Red', color: Colors.red),
-    ChipOption(text: 'Orange', color: Colors.orange),
-    ChipOption(text: 'Green', color: Colors.green),
-    ChipOption(text: 'Blue', color: Colors.blue),
-    ChipOption(text: 'Purple', color: Colors.purple),
-  ];
+  final List<ChipOption> actionOptions = buildOptions();
+  final List<ChipOption> chipOptions = buildOptions();
+  final List<ChipOption> choiceOptions = buildOptions();
+  final List<ChipOption> filterOptions = buildOptions();
+  final List<ChipOption> inputOptions = buildOptions();
+
+  late List<ActionChip> actionChips;
+  late List<Chip> chips;
+  late List<ChoiceChip> choiceChips;
   late List<FilterChip> filterChips;
   late List<InputChip> inputChips;
 
   @override
   Widget build(BuildContext context) {
-    filterChips = chipOptions
+    actionChips = actionOptions
+        .where((option) => !option.deleted)
+        .map(
+          (option) => ActionChip(
+            backgroundColor: Colors.grey[300],
+            elevation: 5,
+            label: Text(option.text),
+            labelStyle: TextStyle(
+              color: option.color,
+              fontWeight: FontWeight.bold,
+            ),
+            onPressed: () => print('You pressed ${option.text}'),
+          ),
+        )
+        .toList();
+
+    chips = chipOptions
+        .where((option) => !option.deleted)
+        .map(
+          (option) => Chip(
+            backgroundColor: Colors.grey[300],
+            elevation: 5,
+            label: Text(option.text),
+            labelStyle: TextStyle(
+              color: option.color,
+              fontWeight: FontWeight.bold,
+            ),
+            onDeleted: () {
+              setState(() => option.deleted = true);
+            },
+          ),
+        )
+        .toList();
+
+    choiceChips = choiceOptions
+        .map(
+          (option) => ChoiceChip(
+            backgroundColor: option.color.withOpacity(0.2),
+            elevation: 5,
+            label: Text(option.text),
+            labelStyle: TextStyle(
+              color: option.selected ? Colors.grey[700] : option.color,
+              fontWeight: FontWeight.bold,
+            ),
+            selected: option.selected,
+            selectedColor: option.color.withOpacity(0.6),
+            onSelected: (bool selected) {
+              setState(() {
+                for (var opt in choiceOptions) {
+                  opt.selected = false;
+                }
+                option.selected = selected;
+              });
+            },
+          ),
+        )
+        .toList();
+
+    filterChips = filterOptions
         .map(
           (option) => FilterChip(
             backgroundColor: option.color.withOpacity(0.2),
@@ -65,7 +126,7 @@ class _HomeState extends State<Home> {
         )
         .toList();
 
-    inputChips = chipOptions
+    inputChips = inputOptions
         .where((option) => !option.deleted)
         .map(
           (option) => InputChip(
@@ -79,6 +140,12 @@ class _HomeState extends State<Home> {
             onDeleted: () {
               setState(() => option.deleted = true);
             },
+            //onPressed: () => print('You pressed ${option.text}'),
+            selected: option.selected,
+            selectedColor: option.color.withOpacity(0.6),
+            onSelected: (bool selected) {
+              setState(() => option.selected = selected);
+            },
           ),
         )
         .toList();
@@ -88,43 +155,36 @@ class _HomeState extends State<Home> {
       body: Center(
         child: Column(
           children: [
-            Wrap(
-              children: <Widget>[
-                buildChip('Chocolate', Colors.brown),
-                buildActionChip(
-                  'Vanilla',
-                  Colors.deepOrange,
-                  () => print('got press'),
-                ),
-                buildChip('Strawberry', Colors.pink),
-                buildChip('Blueberry', Colors.blue),
-                buildChip('Kiwi', Colors.green),
-              ],
-              spacing: spacing,
-            ),
-            Wrap(children: inputChips, spacing: spacing),
+            buildLabel('ActionChips'),
+            Wrap(children: actionChips, spacing: spacing),
+            buildLabel('Chips'),
+            Wrap(children: chips, spacing: spacing),
+            buildLabel('ChoiceChips'),
+            Wrap(children: choiceChips, spacing: spacing),
+            buildLabel('FilterChips'),
             Wrap(children: filterChips, spacing: spacing),
-            //TODO: Add ChoiceChips.
+            buildLabel('InputChips'),
+            Wrap(children: inputChips, spacing: spacing),
           ],
         ),
       ),
     );
   }
 
-  Widget buildActionChip(String text, Color bgColor, VoidCallback onPressed) =>
-      ActionChip(
-        avatar: Icon(Icons.ac_unit, color: Colors.white),
-        backgroundColor: bgColor,
-        elevation: 5,
-        label: Text(text),
-        labelStyle: TextStyle(color: Colors.white),
-        onPressed: onPressed,
-      );
+  Widget buildLabel(String text) {
+    return Text(
+      text,
+      style: TextStyle(fontWeight: FontWeight.bold),
+    ).margin(EdgeInsets.only(top: 20));
+  }
 
-  Widget buildChip(String text, Color bgColor) => Chip(
-        backgroundColor: bgColor,
-        elevation: 5,
-        label: Text(text),
-        labelStyle: TextStyle(color: Colors.white),
-      );
+  static List<ChipOption> buildOptions() {
+    return [
+      ChipOption(text: 'Red', color: Colors.red),
+      ChipOption(text: 'Orange', color: Colors.orange),
+      ChipOption(text: 'Green', color: Colors.green),
+      ChipOption(text: 'Blue', color: Colors.blue),
+      ChipOption(text: 'Purple', color: Colors.purple),
+    ];
+  }
 }
